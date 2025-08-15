@@ -8,6 +8,7 @@ const css = `
            linear-gradient(180deg, #fff, #fbfbfb 40%, #ffffff 100%);
   --ps-black:#0b0b0c; --ps-muted:#6b7280; --ps-accent:#7c5cff; --ps-accent-2:#00d4ff;
 }
+body {overflow-y:hidden;}
 .ps-wrap{background:var(--ps-bg); min-height:calc(100vh - 56px);}
 .ps-container{max-width:1150px; margin:0 auto; padding:48px 24px;}
 .ps-hero{display:grid; grid-template-columns:1.1fr .9fr; gap:40px; align-items:center}
