@@ -29,6 +29,19 @@ export default function Navbar() {
               <span>Home</span>
             </NavLink>
             <NavLink
+              to="/pricing"
+              className={({ isActive }) =>
+                "nav-link" + (isActive ? " is-active" : "")
+              }
+            >
+              <img
+                src="https://icons.iconarchive.com/icons/iconsmind/outline/512/Pricing-icon.png"
+                alt=""
+                aria-hidden
+              />
+              <span>Pricing </span>
+            </NavLink>
+            <NavLink
               to="/search"
               className={({ isActive }) =>
                 "nav-link" + (isActive ? " is-active" : "")
@@ -41,6 +54,7 @@ export default function Navbar() {
               />
               <span>Search</span>
             </NavLink>
+          
           </nav>
         </div>
 

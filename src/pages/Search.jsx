@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-/* Page-scoped styles (prefix psl-) — seamless & polished */
-const css = `
+/* Page-scoped styles (prefix psl-) */
+const css = String.raw`
 :root{
   --psl-accent:#6E5BFF;
   --psl-accent-2:#A78BFA;
@@ -13,6 +13,9 @@ const css = `
   --psl-card-solid:#fff;
   --psl-border: rgba(17, 24, 39, .08);
   --psl-soft:#FAFBFE;
+
+  /* multiselect layout vars */
+  --psl-popHeadH: 48px; /* search header height inside the countries popover */
 }
 
 /* Subnav */
@@ -31,7 +34,7 @@ const css = `
 .psl-shell{
   height: calc(100vh - 56px - 40px);
   background: var(--psl-bg);
-  overflow: hidden;
+  overflow: hidden; /* kill stray horizontal scroll */
 }
 
 /* Layout */
@@ -41,9 +44,10 @@ const css = `
   grid-template-columns: 292px 1fr;
   gap:18px;
   padding:16px 18px;
+  overflow: hidden; /* safety */
 }
 
-/* --- Sidebar card --- */
+/* Sidebar card */
 .psl-side{
   position:relative;
   background: var(--psl-card);
@@ -102,7 +106,7 @@ const css = `
 }
 .psl-btn.primary:hover{ filter:brightness(.985); }
 
-/* --- Countries Multi-select --- */
+/* Countries Multi-select */
 .psl-multi{ margin: 6px; }
 .psl-multi-btn{
   width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px;
@@ -112,31 +116,99 @@ const css = `
 .psl-multi-btn:hover{ background:#f9f9ff; transform: translateY(-1px); }
 .psl-multi-badge{ font-size:12px; color:var(--psl-muted); }
 
+/* Popover container */
 .psl-multi-pop{
   position:absolute; left:12px; right:12px; z-index:20; margin-top:8px;
   background:#fff; border:1px solid var(--psl-border); border-radius:14px;
   box-shadow: 0 22px 60px rgba(16,24,40,.18);
   max-height: 56vh; overflow:auto; animation: psl-pop .14s ease;
-  scrollbar-width: thin;                /* Firefox */
+  scrollbar-width: thin; /* Firefox */
   scrollbar-color: var(--psl-accent) #f1f3f7;
-}
+  overflow-x: hidden;
 }
 @keyframes psl-pop{ from{ opacity:0; transform:translateY(-4px) scale(.99); } to{ opacity:1; transform:translateY(0) scale(1); } }
-.psl-multi-head{ position:sticky; top:0; background:rgba(255,255,255,.96); backdrop-filter: blur(6px); border-bottom:1px solid var(--psl-border); padding:10px; }
-.psl-multi-search{ width:100%; border:1px solid var(--psl-border); border-radius:10px; padding:8px 10px; font-size:14px; }
-.psl-multi-body{ padding:8px 10px 12px; display:grid; gap:12px; }
-.psl-region{ border:1px dashed var(--psl-border); border-radius:12px; padding:8px; }
-.psl-region h5{
-  margin:0 0 8px; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:#8b8fa3;
-  display:flex; justify-content:space-between; align-items:center;
+
+/* Sticky search header (top of popover) */
+.psl-multi-head{
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: rgba(255,255,255,.96);
+  backdrop-filter: blur(6px);
+  border-bottom:1px solid var(--psl-border);
+  padding: 8px 10px;
+  height: var(--psl-popHeadH);
+  box-sizing: border-box;
 }
-.psl-group-actions{ display:flex; gap:6px; }
+
+.psl-multi-search{ width:100%; border:1px solid var(--psl-border); border-radius:10px; padding:8px 10px; font-size:14px; }
+
+/* Body spacing */
+.psl-multi-body{ padding:8px 12px 12px; display:grid; gap:12px; }
+
+/* Region card */
+.psl-region{ border:1px dashed var(--psl-border); border-radius:12px; padding:12px; background:#fff; }
+
+/* Sticky region header */
+.psl-region > h5{
+  position: sticky;
+  top: var(--psl-popHeadH);
+  z-index: 4;
+
+  display: grid;
+  grid-template-columns: 1fr auto; /* title | actions */
+  align-items: center;
+  gap: 10px;
+
+  margin: -12px;
+  margin-bottom: 8px;
+  padding: 10px 12px;
+
+  background: #fff;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  border-bottom: 1px dashed var(--psl-border);
+
+  font-size: 12px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color:#8b8fa3;
+
+  white-space: normal;  /* allow wrapping for long names */
+  line-height: 1.1;
+  min-width: 0;
+}
+
+/* soft fade under sticky header */
+.psl-region > h5::after{
+  content:"";
+  position:absolute;
+  left:0; right:0; bottom:-1px;
+  height: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,1), rgba(255,255,255,0));
+  pointer-events: none;
+}
+
+/* header actions */
+.psl-group-actions{ display:inline-flex; gap:6px; justify-self:end; white-space:nowrap; }
 .psl-mini{ border:1px solid var(--psl-border); background:#fff; border-radius:8px; padding:4px 8px; font-size:12px; cursor:pointer; }
+
 .psl-country{ display:flex; align-items:center; gap:8px; padding:4px 2px; font-size:14px; }
 .psl-country input{ width:16px; height:16px; }
-.psl-multi-foot{ display:flex; gap:8px; padding:10px; border-top:1px solid var(--psl-border); background:#fff; position:sticky; bottom:0; }
 
-/* --- Right column --- */
+/* Sticky footer in popover */
+.psl-multi-foot{ display:flex; gap:8px; padding:10px; border-top:1px solid var(--psl-border); background:#fff; position:sticky; bottom:0; z-index:5; }
+
+/* WebKit scrollbar for popover */
+.psl-multi-pop::-webkit-scrollbar { width: 0; } /* hidden by default */
+.psl-multi-pop:hover::-webkit-scrollbar { width: 6px; }
+.psl-multi-pop::-webkit-scrollbar-track { background:#f1f3f7; border-radius:10px; }
+.psl-multi-pop::-webkit-scrollbar-thumb{
+  background: linear-gradient(180deg, var(--psl-accent), var(--psl-accent-2));
+  border-radius:10px; border:2px solid #f1f3f7;
+}
+
+/* Right column */
 .psl-content{ min-width:0; display:flex; flex-direction:column; overflow:hidden; }
 
 /* Toolbar */
@@ -151,7 +223,7 @@ const css = `
 .psl-actions-row{ display:flex; gap:8px; flex-wrap:wrap; }
 .psl-actions-row .psl-btn{ border-radius:10px; padding:8px 11px; }
 
-/* --- Table Card (table + footer) --- */
+/* Table Card */
 .psl-tableblock{
   flex:1; min-height:0; display:flex; flex-direction:column;
   background:var(--psl-card-solid);
@@ -198,7 +270,7 @@ const css = `
 .psl-pager button:hover{ background:#f4f6fb; transform: translateY(-1px); }
 .psl-pager button:disabled{ opacity:.45; cursor:not-allowed; }
 
-/* Scrollbars */
+/* Scrollbars (sidebar + table) */
 .psl-tablewrap, .psl-side { scrollbar-width: thin; scrollbar-color: var(--psl-accent) #f1f3f7; }
 .psl-tablewrap::-webkit-scrollbar, .psl-side::-webkit-scrollbar{ width:10px; height:10px; }
 .psl-tablewrap::-webkit-scrollbar-track, .psl-side::-webkit-scrollbar-track{ background:#f1f3f7; border-radius:10px; }
@@ -219,12 +291,12 @@ const css = `
 
 /* tiny search icon */
 const SearchIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
     <circle cx="11" cy="11" r="8"/><path d="M21 21l-3.5-3.5"/>
   </svg>
 );
 
-/* Region → Countries */
+/* Region -> Countries */
 const COUNTRY_GROUPS = {
   Europe: ["Czechia","Germany","Italy","France","Spain","Poland","UK","Netherlands","Sweden","Norway"],
   "North America": ["US","Canada","Mexico"],
@@ -290,7 +362,10 @@ function MultiSelectCountries({ selected, onChange, groups = COUNTRY_GROUPS }) {
     };
     window.addEventListener("keydown", onKey);
     window.addEventListener("mousedown", onClick);
-    return () => { window.removeEventListener("keydown", onKey); window.removeEventListener("mousedown", onClick); };
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("mousedown", onClick);
+    };
   }, [open]);
 
   return (
@@ -303,14 +378,14 @@ function MultiSelectCountries({ selected, onChange, groups = COUNTRY_GROUPS }) {
       {open && (
         <div className="psl-multi-pop" role="dialog" aria-label="Select countries by region">
           <div className="psl-multi-head">
-            <input className="psl-multi-search" placeholder="Search countries…" value={q} onChange={e=>setQ(e.target.value)} />
+            <input className="psl-multi-search" placeholder="Search countries..." value={q} onChange={e=>setQ(e.target.value)} />
           </div>
 
           <div className="psl-multi-body">
             {Object.entries(filteredGroups).map(([region, arr]) => (
               <div className="psl-region" key={region}>
                 <h5>
-                  {region}
+                  <span>{region}</span>
                   <span className="psl-group-actions">
                     <button className="psl-mini" type="button" onClick={()=>selectGroup(region)}>Select all</button>
                     <button className="psl-mini" type="button" onClick={()=>clearGroup(region)}>Clear</button>
@@ -344,8 +419,8 @@ export default function Search() {
   const curators      = ["DJ Smooth","Anna Beats","Mike Wave","LoFiMaster","ChillZone","PlaylistPro"];
 
   const [data, setData] = useState([]);
-  const [qInput, setQInput] = useState("");          // raw input
-  const [q, setQ] = useState("");                    // debounced value
+  const [qInput, setQInput] = useState("");  // raw input
+  const [q, setQ] = useState("");            // debounced value
   const [selectedTags, setSelectedTags] = useState(new Set());
   const [selectedCountries, setSelectedCountries] = useState(new Set());
   const [currentPage, setCurrentPage] = useState(1);
@@ -374,24 +449,11 @@ export default function Search() {
     setData(rows);
   }, []);
 
-  /* Debounce search input for smoother typing */
+  // Debounce search input
   useEffect(() => {
     const t = setTimeout(() => { setQ(qInput); setCurrentPage(1); }, 250);
     return () => clearTimeout(t);
   }, [qInput]);
-
-  const exportVisible = () => {
-  exportToCSV(rows, "visible_playlists.csv");
-};
-
-const exportAllFilt = () => {
-  exportToCSV(filtered, "filtered_playlists.csv");
-};
-
-const exportSelected = () => {
-  const selRows = data.filter(r => selectedIds.has(r.id));
-  exportToCSV(selRows, "selected_playlists.csv");
-};
 
   // filtering
   const filtered = useMemo(() => {
@@ -432,41 +494,47 @@ const exportSelected = () => {
 
   const clearAll = () => { setQInput(""); setQ(""); setSelectedTags(new Set()); setSelectedCountries(new Set()); setCurrentPage(1); };
 
-  // CSV (semicolon-delimited for CZ Excel)
-const exportToCSV = (items, filename) => {
-  const delimiter = ";";
-  const header = ["Playlist Name","Curator","Countries","Keywords","Email","URL","IG"];
-  const esc = (v) => {
-    const s = String(v ?? "");
-    return /["\n;]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  // CSV / TSV helpers
+  const exportToCSV = (items, filename) => {
+    const delimiter = ";";
+    const header = ["Playlist Name","Curator","Countries","Keywords","Email","URL","IG"];
+    const esc = (v) => {
+      const s = String(v ?? "");
+      return /["\n;]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const lines = items.map(r => [
+      r.name, r.curator, r.countries.join(", "), r.keywords.join(", "), r.email, r.url, r.ig
+    ].map(esc).join(delimiter));
+    const csv = "\uFEFF" + [header.join(delimiter), ...lines].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
   };
-  const lines = items.map(r => [
-    r.name, r.curator, r.countries.join(", "), r.keywords.join(", "), r.email, r.url, r.ig
-  ].map(esc).join(delimiter));
-  const csv = "\uFEFF" + [header.join(delimiter), ...lines].join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click(); a.remove();
-  URL.revokeObjectURL(url);
-};
+  const exportToTSV = (items, filename) => {
+    const header = ["Playlist Name","Curator","Countries","Keywords","Email","URL","IG"];
+    const esc = (v) => String(v ?? "").replace(/\r?\n/g, " ");
+    const lines = items.map(r => [
+      r.name, r.curator, r.countries.join(", "), r.keywords.join(", "), r.email, r.url, r.ig
+    ].map(esc).join("\t"));
+    const tsv = "\uFEFF" + [header.join("\t"), ...lines].join("\n");
+    const blob = new Blob([tsv], { type: "text/tab-separated-values;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  };
 
-// TSV (tab-delimited)
-const exportToTSV = (items, filename) => {
-  const header = ["Playlist Name","Curator","Countries","Keywords","Email","URL","IG"];
-  const esc = (v) => String(v ?? "").replace(/\r?\n/g, " ");
-  const lines = items.map(r => [
-    r.name, r.curator, r.countries.join(", "), r.keywords.join(", "), r.email, r.url, r.ig
-  ].map(esc).join("\t"));
-  const tsv = "\uFEFF" + [header.join("\t"), ...lines].join("\n");
-  const blob = new Blob([tsv], { type: "text/tab-separated-values;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click(); a.remove();
-  URL.revokeObjectURL(url);
-};
+  // export buttons
+  const exportVisible  = () => { if (rows.length)     exportToCSV(rows, "visible_playlists.csv"); };
+  const exportAllFilt  = () => { if (filtered.length) exportToCSV(filtered, "filtered_playlists.csv"); };
+  const exportSelected = () => {
+    const selRows = data.filter(r => selectedIds.has(r.id));
+    if (selRows.length) exportToCSV(selRows, "selected_playlists.csv");
+  };
 
   return (
     <>
@@ -485,7 +553,7 @@ const exportToTSV = (items, filename) => {
               <input
                 value={qInput}
                 onChange={e=>setQInput(e.target.value)}
-                placeholder="Search name, curator, email, IG…"
+                placeholder="Search name, curator, email, IG..."
               />
             </label>
 
@@ -495,7 +563,7 @@ const exportToTSV = (items, filename) => {
                 {["Chill","EDM","Hip-Hop","Lo-fi","Indie","Pop","Trap","House","Jazz","Acoustic"].map(t => (
                   <button
                     key={t}
-                    className={`psl-pill ${selectedTags.has(t)?"selected":""}`}
+                    className={"psl-pill " + (selectedTags.has(t) ? "selected" : "")}
                     onClick={()=>setSelectedTags(p=>{const n=new Set(p); n.has(t)?n.delete(t):n.add(t); setCurrentPage(1); return n;})}
                   >{t}</button>
                 ))}
