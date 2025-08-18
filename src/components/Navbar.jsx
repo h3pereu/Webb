@@ -1,4 +1,3 @@
-// src/components/Navbar.jsx
 import React from "react";
 import { NavLink, Link } from "react-router-dom";
 
@@ -6,7 +5,7 @@ export default function Navbar() {
   return (
     <header className="navbar nav">
       <div className="nav-inner">
-        {/* LEFT SIDE: brand + menu */}
+        {}
         <div className="nav-left">
           <Link to="/" className="nav-brand" aria-label="Playlist Supplier Home">
             <img className="brand-icon" src="/home.png" alt="" aria-hidden />
@@ -58,7 +57,7 @@ export default function Navbar() {
           </nav>
         </div>
 
-        {/* RIGHT SIDE: settings */}
+        {}
         <div className="nav-right">
           <button className="icon-btn" aria-label="Settings">
             <img

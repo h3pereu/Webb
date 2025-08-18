@@ -1,6 +1,5 @@
 import React from "react";
 
-// Styles scoped to this page (prefix ps-)
 const css = `
 :root{
   --ps-bg:
@@ -12,15 +11,12 @@ const css = `
   --ps-line:#eaeaef; --ps-card:#fff;
 }
 body{overflow-y:hidden;}
-/* Global page area */
 .ps-wrap{ background:var(--ps-bg); min-height:100svh; }
 .ps-container{ max-width:1150px; margin:0 auto; padding:48px 24px; }
 
-/* Utilities */
 .ps-sr{ position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 .ps-kbd-focus:focus-visible{ outline:2px solid color-mix(in oklab, var(--ps-accent), #000 10%); outline-offset:2px; border-radius:12px; }
 
-/* Hero */
 .ps-hero{ display:grid; grid-template-columns:1.1fr .9fr; gap:40px; align-items:center; }
 .ps-eyebrow{
   display:inline-flex; align-items:center; gap:8px; font-weight:600; font-size:13px;
@@ -30,7 +26,6 @@ body{overflow-y:hidden;}
 .ps-title{ font-size:54px; line-height:1.05; letter-spacing:-.02em; font-weight:800; color:var(--ps-black); margin:16px 0 }
 .ps-sub{ font-size:18px; color:var(--ps-muted); max-width:60ch }
 
-/* CTA row */
 .ps-cta{ display:flex; gap:10px; margin-top:22px; align-items:center; flex-wrap:wrap; }
 .ps-input{
   flex:1 1 260px; min-width:260px; padding:14px 16px;
@@ -48,7 +43,6 @@ body{overflow-y:hidden;}
 .ps-logos span{ display:inline-flex; align-items:center; gap:8px; font-size:13px; color:#4b5563 }
 .ps-dot{ width:4px; height:4px; border-radius:999px; background:#c9ccd6; }
 
-/* Right: flow cards */
 .ps-cardflow{ display:grid; grid-template-rows:auto; gap:14px; position:relative; }
 .ps-flow-card{
   background:var(--ps-card); border:1px solid var(--ps-line); border-radius:16px; padding:14px 16px;
@@ -63,18 +57,15 @@ body{overflow-y:hidden;}
   background:#f3f4f6; margin-left:auto; white-space:nowrap;
 }
 
-/* Make the flow sticky on wide screens */
 @media (min-width: 981px){
   .ps-cardflow{ position:sticky; top:96px; }
 }
 
-/* Features */
 .ps-features{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:44px }
 .ps-feature{ background:#fff; border:1px solid var(--ps-line); border-radius:16px; padding:18px; box-shadow:0 10px 24px rgba(0,0,0,.06) }
 .ps-feature h4{ margin:0 0 6px 0; font-size:16px }
 .ps-feature p{ margin:0; color:#6b7280; font-size:14px }
 
-/* CTA band with gradient ring */
 .ps-cta-band{
   --ring: radial-gradient(40% 140% at 10% 50%, rgba(124,92,255,.25), transparent),
           radial-gradient(40% 140% at 90% 50%, rgba(0,212,255,.25), transparent);
@@ -88,13 +79,11 @@ body{overflow-y:hidden;}
 .ps-cta-band strong{ font-size:15px }
 .ps-cta-band .ps-input{ min-width:220px }
 
-/* Motion prefs */
 @media (prefers-reduced-motion: reduce){
   .ps-btn, .ps-flow-card{ transition:none }
   .ps-btn:hover, .ps-flow-card:hover{ transform:none; box-shadow:none }
 }
 
-/* Responsive */
 @media (max-width: 980px){
   .ps-hero{ grid-template-columns:1fr; }
   .ps-title{ font-size:42px; }
@@ -115,7 +104,6 @@ const Check = () => (
 export default function Home() {
   const onSubmit = (e) => {
     e.preventDefault();
-    // TODO: hook up navigation or action
   };
 
   return (
@@ -124,7 +112,7 @@ export default function Home() {
 
       <div className="ps-container">
         <section className="ps-hero">
-          {/* Left: copy + CTA */}
+          { }
           <div>
             <span className="ps-eyebrow">PlaylistSupplier • grow with curators</span>
             <h1 className="ps-title">
@@ -154,7 +142,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right: flow mock like Apollo but different */}
+          { }
           <div className="ps-cardflow" aria-label="product flow preview">
             <div className="ps-flow-card">
               <div className="ps-badge" aria-hidden>🎯</div>
@@ -194,7 +182,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Feature grid */}
+        { }
         <section className="ps-features" aria-label="core features">
           <div className="ps-feature">
             <h4>Instagram-first curators</h4>
@@ -210,14 +198,14 @@ export default function Home() {
           </div>
         </section>
 
-        {/* CTA band */}
+        { }
         <section className="ps-cta-band" aria-label="signup">
           <strong>Ready to find your next 20 playlists?</strong>
           <div style={{
             display: "flex",
             gap: 8,
             marginLeft: "auto",
-            flexWrap: "nowrap", // ✅ force same line
+            flexWrap: "nowrap",
             minWidth: "320px",
             alignItems: "center"
           }}>
@@ -226,7 +214,7 @@ export default function Home() {
               id="signup-email"
               className="ps-input ps-kbd-focus"
               placeholder="Enter email"
-              style={{ flex: "1 1 auto" }} // ✅ flexible input width
+              style={{ flex: "1 1 auto" }}
             />
             <button className="ps-btn ps-kbd-focus" style={{ flexShrink: 0 }}>Sign up free</button>
           </div>

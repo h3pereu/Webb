@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-/* Page-scoped styles (prefix psl-) */
 const css = String.raw`
 :root{
   --psl-accent:#6E5BFF;
@@ -14,11 +13,9 @@ const css = String.raw`
   --psl-border: rgba(17, 24, 39, .08);
   --psl-soft:#FAFBFE;
 
-  /* multiselect layout vars */
-  --psl-popHeadH: 48px; /* search header height inside the countries popover */
+  --psl-popHeadH: 48px;
 }
 
-/* Subnav */
 .psl-subnav{
   position: sticky; top: 56px; z-index: 5;
   background: rgba(255,255,255,.7);
@@ -30,24 +27,21 @@ const css = String.raw`
   font-weight: 700; color: var(--psl-ink);
 }
 
-/* Page shell */
 .psl-shell{
   height: calc(100vh - 56px - 40px);
   background: var(--psl-bg);
-  overflow: hidden; /* kill stray horizontal scroll */
+  overflow: hidden; 
 }
 
-/* Layout */
 .psl-grid{
   height:100%;
   display:grid;
   grid-template-columns: 292px 1fr;
   gap:18px;
   padding:16px 18px;
-  overflow: hidden; /* safety */
+  overflow: hidden;
 }
 
-/* Sidebar card */
 .psl-side{
   position:relative;
   background: var(--psl-card);
@@ -106,7 +100,6 @@ const css = String.raw`
 }
 .psl-btn.primary:hover{ filter:brightness(.985); }
 
-/* Countries Multi-select */
 .psl-multi{ margin: 6px; }
 .psl-multi-btn{
   width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px;
@@ -116,19 +109,17 @@ const css = String.raw`
 .psl-multi-btn:hover{ background:#f9f9ff; transform: translateY(-1px); }
 .psl-multi-badge{ font-size:12px; color:var(--psl-muted); }
 
-/* Popover container */
 .psl-multi-pop{
   position:absolute; left:12px; right:12px; z-index:20; margin-top:8px;
   background:#fff; border:1px solid var(--psl-border); border-radius:14px;
   box-shadow: 0 22px 60px rgba(16,24,40,.18);
   max-height: 56vh; overflow:auto; animation: psl-pop .14s ease;
-  scrollbar-width: thin; /* Firefox */
+  scrollbar-width: thin;
   scrollbar-color: var(--psl-accent) #f1f3f7;
   overflow-x: hidden;
 }
 @keyframes psl-pop{ from{ opacity:0; transform:translateY(-4px) scale(.99); } to{ opacity:1; transform:translateY(0) scale(1); } }
 
-/* Sticky search header (top of popover) */
 .psl-multi-head{
   position: sticky;
   top: 0;
@@ -143,20 +134,17 @@ const css = String.raw`
 
 .psl-multi-search{ width:100%; border:1px solid var(--psl-border); border-radius:10px; padding:8px 10px; font-size:14px; }
 
-/* Body spacing */
 .psl-multi-body{ padding:8px 12px 12px; display:grid; gap:12px; }
 
-/* Region card */
 .psl-region{ border:1px dashed var(--psl-border); border-radius:12px; padding:12px; background:#fff; }
 
-/* Sticky region header */
 .psl-region > h5{
   position: sticky;
   top: var(--psl-popHeadH);
   z-index: 4;
 
   display: grid;
-  grid-template-columns: 1fr auto; /* title | actions */
+  grid-template-columns: 1fr auto; 
   align-items: center;
   gap: 10px;
 
@@ -174,12 +162,11 @@ const css = String.raw`
   text-transform: uppercase;
   color:#8b8fa3;
 
-  white-space: normal;  /* allow wrapping for long names */
+  white-space: normal;
   line-height: 1.1;
   min-width: 0;
 }
 
-/* soft fade under sticky header */
 .psl-region > h5::after{
   content:"";
   position:absolute;
@@ -189,18 +176,15 @@ const css = String.raw`
   pointer-events: none;
 }
 
-/* header actions */
 .psl-group-actions{ display:inline-flex; gap:6px; justify-self:end; white-space:nowrap; }
 .psl-mini{ border:1px solid var(--psl-border); background:#fff; border-radius:8px; padding:4px 8px; font-size:12px; cursor:pointer; }
 
 .psl-country{ display:flex; align-items:center; gap:8px; padding:4px 2px; font-size:14px; }
 .psl-country input{ width:16px; height:16px; }
 
-/* Sticky footer in popover */
 .psl-multi-foot{ display:flex; gap:8px; padding:10px; border-top:1px solid var(--psl-border); background:#fff; position:sticky; bottom:0; z-index:5; }
 
-/* WebKit scrollbar for popover */
-.psl-multi-pop::-webkit-scrollbar { width: 0; } /* hidden by default */
+.psl-multi-pop::-webkit-scrollbar { width: 0; }
 .psl-multi-pop:hover::-webkit-scrollbar { width: 6px; }
 .psl-multi-pop::-webkit-scrollbar-track { background:#f1f3f7; border-radius:10px; }
 .psl-multi-pop::-webkit-scrollbar-thumb{
@@ -208,10 +192,8 @@ const css = String.raw`
   border-radius:10px; border:2px solid #f1f3f7;
 }
 
-/* Right column */
 .psl-content{ min-width:0; display:flex; flex-direction:column; overflow:hidden; }
 
-/* Toolbar */
 .psl-toolbar{
   display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
   background:var(--psl-card); border:1px solid var(--psl-border); border-radius:16px;
@@ -223,7 +205,6 @@ const css = String.raw`
 .psl-actions-row{ display:flex; gap:8px; flex-wrap:wrap; }
 .psl-actions-row .psl-btn{ border-radius:10px; padding:8px 11px; }
 
-/* Table Card */
 .psl-tableblock{
   flex:1; min-height:0; display:flex; flex-direction:column;
   background:var(--psl-card-solid);
@@ -233,7 +214,6 @@ const css = String.raw`
 }
 .psl-tablewrap{ flex:1; min-height:0; overflow:auto; }
 
-/* Table */
 .psl-table{ width:100%; border-collapse:separate; border-spacing:0; font-size:14px; color:var(--psl-text); }
 .psl-table thead th{
   position:sticky; top:0;
@@ -251,12 +231,10 @@ const css = String.raw`
 
 .psl-chk{ width:16px; height:16px; }
 
-/* Ellipsis */
 .psl-col-name{ max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .psl-col-keywords, .psl-col-countries{ max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .psl-col-email{ max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* Pager */
 .psl-pager{
   display:flex; align-items:center; justify-content:space-between; gap:12px;
   padding:10px 16px; border-top:1px solid var(--psl-border); background:#fff;
@@ -270,7 +248,6 @@ const css = String.raw`
 .psl-pager button:hover{ background:#f4f6fb; transform: translateY(-1px); }
 .psl-pager button:disabled{ opacity:.45; cursor:not-allowed; }
 
-/* Scrollbars (sidebar + table) */
 .psl-tablewrap, .psl-side { scrollbar-width: thin; scrollbar-color: var(--psl-accent) #f1f3f7; }
 .psl-tablewrap::-webkit-scrollbar, .psl-side::-webkit-scrollbar{ width:10px; height:10px; }
 .psl-tablewrap::-webkit-scrollbar-track, .psl-side::-webkit-scrollbar-track{ background:#f1f3f7; border-radius:10px; }
@@ -279,7 +256,6 @@ const css = String.raw`
   border-radius:10px; border:2px solid #f1f3f7;
 }
 
-/* Responsive tweaks */
 @media (max-width: 1100px){
   .psl-col-name{ max-width: 220px; }
   .psl-col-keywords, .psl-col-countries{ max-width: 180px; }
@@ -289,14 +265,12 @@ const css = String.raw`
 }
 `;
 
-/* tiny search icon */
 const SearchIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
     <circle cx="11" cy="11" r="8"/><path d="M21 21l-3.5-3.5"/>
   </svg>
 );
 
-/* Region -> Countries */
 const COUNTRY_GROUPS = {
   Europe: ["Czechia","Germany","Italy","France","Spain","Poland","UK","Netherlands","Sweden","Norway"],
   "North America": ["US","Canada","Mexico"],
@@ -306,7 +280,6 @@ const COUNTRY_GROUPS = {
 };
 const ALL_COUNTRIES = Object.values(COUNTRY_GROUPS).flat();
 
-/* Grouped multi-select */
 function MultiSelectCountries({ selected, onChange, groups = COUNTRY_GROUPS }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -413,14 +386,13 @@ function MultiSelectCountries({ selected, onChange, groups = COUNTRY_GROUPS }) {
 }
 
 export default function Search() {
-  // demo data setup
   const keywordsAll   = ["Chill","EDM","Hip-Hop","Lo-fi","Indie","Pop","Trap","House","Jazz","Acoustic"];
   const playlistNames = ["Chill Vibes","EDM Blast","Morning Acoustic","Late Night Drive","Study Beats","Hip-Hop Central","Lo-fi Focus","Jazz Lounge","Summer Party","Throwback Mix"];
   const curators      = ["DJ Smooth","Anna Beats","Mike Wave","LoFiMaster","ChillZone","PlaylistPro"];
 
   const [data, setData] = useState([]);
-  const [qInput, setQInput] = useState("");  // raw input
-  const [q, setQ] = useState("");            // debounced value
+  const [qInput, setQInput] = useState("");
+  const [q, setQ] = useState("");
   const [selectedTags, setSelectedTags] = useState(new Set());
   const [selectedCountries, setSelectedCountries] = useState(new Set());
   const [currentPage, setCurrentPage] = useState(1);
@@ -449,13 +421,11 @@ export default function Search() {
     setData(rows);
   }, []);
 
-  // Debounce search input
   useEffect(() => {
     const t = setTimeout(() => { setQ(qInput); setCurrentPage(1); }, 250);
     return () => clearTimeout(t);
   }, [qInput]);
 
-  // filtering
   const filtered = useMemo(() => {
     const qx = q.trim().toLowerCase();
     return data.filter(row => {
@@ -469,18 +439,15 @@ export default function Search() {
     });
   }, [data, q, selectedTags, selectedCountries]);
 
-  // paging
   const pageSize = 16;
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const start = (currentPage-1) * pageSize;
   const rows = filtered.slice(start, start + pageSize);
 
-  // auto-scroll table to top when page or filters change
   useEffect(() => {
     tableWrapRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentPage, q, selectedTags, selectedCountries]);
 
-  // selection
   const toggleRow = (id) => setSelectedIds(prev => { const c=new Set(prev); c.has(id)?c.delete(id):c.add(id); return c; });
   const toggleAllVisible = () => {
     const visibleIds = rows.map(r => r.id);
@@ -494,7 +461,6 @@ export default function Search() {
 
   const clearAll = () => { setQInput(""); setQ(""); setSelectedTags(new Set()); setSelectedCountries(new Set()); setCurrentPage(1); };
 
-  // CSV / TSV helpers
   const exportToCSV = (items, filename) => {
     const delimiter = ";";
     const header = ["Playlist Name","Curator","Countries","Keywords","Email","URL","IG"];
@@ -528,7 +494,6 @@ export default function Search() {
     URL.revokeObjectURL(url);
   };
 
-  // export buttons
   const exportVisible  = () => { if (rows.length)     exportToCSV(rows, "visible_playlists.csv"); };
   const exportAllFilt  = () => { if (filtered.length) exportToCSV(filtered, "filtered_playlists.csv"); };
   const exportSelected = () => {
@@ -544,7 +509,7 @@ export default function Search() {
 
       <div className="psl-shell">
         <div className="psl-grid">
-          {/* LEFT: Filters */}
+          {}
           <aside className="psl-side">
             <h4>Filters</h4>
 
@@ -584,7 +549,7 @@ export default function Search() {
             </div>
           </aside>
 
-          {/* RIGHT: Toolbar + Table card with attached pager */}
+          {}
           <section className="psl-content">
             <div className="psl-toolbar">
               <div className="psl-count">Total {filtered.length}</div>

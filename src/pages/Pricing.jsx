@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from "react";
 
-/* Page-scoped styles (prefix prc-) — plain template literal (no String.raw) */
 const css = `
 :root{
   --prc-accent:#6E5BFF;
@@ -48,7 +47,6 @@ const css = `
 .prc-switch input:checked + i{ transform: translateX(26px); }
 .prc-save{ font-size:12px; color:#6c60ff; background:#efeaff; border:1px solid #e6e0ff; padding:4px 8px; border-radius:999px; }
 
-/* Pricing grid */
 .prc-grid{
   max-width:1100px; margin: 18px auto 0;
   display:grid; gap:16px; grid-template-columns: repeat(12, 1fr);
@@ -102,7 +100,6 @@ const css = `
   box-shadow: 0 6px 14px rgba(110,91,255,.25);
 }
 
-/* Feature compare (compact) */
 .prc-compare{
   max-width:1100px; margin: 26px auto 0;
   background: var(--prc-card-solid);
@@ -124,13 +121,11 @@ const css = `
   box-shadow: 0 6px 14px rgba(110,91,255,.25);
 }
 
-/* FAQ */
 .prc-faq{ max-width: 900px; margin: 34px auto 0; display:grid; gap:10px; }
 .prc-qa{ background:#fff; border:1px solid var(--prc-border); border-radius:12px; padding:14px 16px; }
 .prc-q{ font-weight:800; color:#0f1320; }
 .prc-a{ margin-top:6px; color:#5d667c; }
 
-/* Responsive */
 @media (max-width: 1000px){
   .prc-card{ grid-column: span 6; }
 }
@@ -141,15 +136,14 @@ const css = `
 `;
 
 function usePrices() {
-  // prices in cents (monthly)
   const base = { free: 0, starter: 900, pro: 1900 };
-  const yearlyDiscount = 0.2; // 20% off if billed annually
+  const yearlyDiscount = 0.2;
   return { base, yearlyDiscount };
 }
 
 export default function Pricing() {
   const { base, yearlyDiscount } = usePrices();
-  const [yearly, setYearly] = useState(true);
+  const [yearly, setYearly] = useState(false);
 
   const plans = useMemo(() => {
     const m = (c) => (c / 100).toFixed(0);
@@ -216,7 +210,7 @@ export default function Pricing() {
         <section className="prc-grid">
           {plans.map((p) => (
             <article key={p.key} className={"prc-card" + (p.highlight ? " popular" : "")}>
-                
+
               <div className="prc-name">{p.name}</div>
               <div className="prc-desc">{p.desc}</div>
 
@@ -237,7 +231,7 @@ export default function Pricing() {
                   </li>
                 ))}
               </ul>
-              
+
             </article>
           ))}
         </section>
