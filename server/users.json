@@ -1,0 +1,20 @@
+{
+  "users": [
+    {
+      "id": "1755735697749",
+      "email": "dominikgryzbon@gmail.com",
+      "display_name": "Dominik",
+      "password_hash": "$2a$10$aXhhRRvM9Rqg25z2uksxFOyoMVe.hfFrvkq3bm7o.H5.GLJGMdAOy",
+      "credits": 10,
+      "avatar_url": "",
+      "bio": "",
+      "location": "",
+      "genres": [],
+      "links": {
+        "website": "",
+        "instagram": "",
+        "twitter": ""
+      }
+    }
+  ]
+}
