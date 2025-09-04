@@ -113,6 +113,88 @@
   padding: 16px 18px;
   overflow: hidden;
 }
+.psl-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid var(--psl-border);
+  background: #fff;
+  border-radius: 12px;
+}
+
+.psl-sort-label {
+  font-weight: 700;
+  color: #3b3f4a;
+}
+
+.psl-sort-field {
+  border: 1px solid var(--psl-border);
+  background: #fff;
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.psl-sort-dir {
+  display: inline-flex;
+  gap: 4px;
+  margin-left: 4px;
+}
+
+.psl-sort-btn {
+  border: 1px solid var(--psl-border);
+  background: #fff;
+  border-radius: 10px;
+  padding: 4px 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background .2s ease, transform .12s ease, box-shadow .2s ease;
+}
+.psl-sort-btn:hover { background: #f4f6fb; transform: translateY(-1px); }
+.psl-sort-btn.active {
+  background: linear-gradient(90deg, var(--psl-accent), var(--psl-accent-2));
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 6px 18px rgba(110, 91, 255, .22);
+}
+
+/* Clickable sortable TH buttons */
+.psl-th-sortable {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  font-weight: 700;
+  color: #3b3f4a;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: background .18s ease, transform .12s ease, box-shadow .18s ease;
+}
+.psl-th-sortable:hover {
+  background: #eef2ff;
+  transform: translateY(-1px);
+}
+.psl-th-sortable.active {
+  background: #e8ecff;
+  box-shadow: 0 6px 16px rgba(110, 91, 255, .18) inset;
+}
+.psl-sort-caret { opacity: .85; }
+.psl-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  display: grid; place-items: center; z-index: 9999;
+}
+.psl-modal {
+  background: #0b1020; color: #e5e7eb; border: 1px solid #1f2937;
+  border-radius: 12px; padding: 18px 20px; width: min(480px, 92vw);
+  box-shadow: 0 10px 30px rgba(0,0,0,.5);
+}
+.psl-modal h3 { margin: 0 0 4px; font-size: 18px; }
+.psl-modal .psl-btn { padding: 8px 12px; }
 
 /* --- Sidebar --- */
 .psl-side {

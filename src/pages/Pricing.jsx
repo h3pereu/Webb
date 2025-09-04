@@ -1,5 +1,10 @@
-import React from "react";
+// src/pages/Pricing.jsx
+import React, { useState } from "react";
+import { loadStripe } from "@stripe/stripe-js";
+import { useAuth } from "../context/AuthContext.jsx";
+import { useLocation, useNavigate } from "react-router-dom";
 
+/* 1) KEEP YOUR CSS INSIDE BACKTICKS */
 const css = `
 :root{
   --prc-accent:#6E5BFF;
@@ -13,7 +18,18 @@ const css = `
   --prc-border: rgba(17, 24, 39, .08);
 }
 
-.prc-shell{ min-height: calc(100vh - 56px); background: var(--prc-bg); padding: 28px 18px 80px; color: var(--prc-text); }
+/* Scroll area under sticky navbar */
+.page-scroll { height: calc(100vh - var(--nav-h)); overflow: auto; }
+@media (max-width: 640px) { .page-scroll { height: calc(100svh - var(--nav-h)); } }
+
+/* Custom scrollbar */
+.page-scroll { scrollbar-width: thin; scrollbar-color: #a78bfa #eef1ff; } /* Firefox */
+.page-scroll::-webkit-scrollbar { width: 10px; }
+.page-scroll::-webkit-scrollbar-track { background:#eef1ff; border-left:1px solid var(--nav-border); }
+.page-scroll::-webkit-scrollbar-thumb { background:linear-gradient(180deg,#c7d2fe,#a78bfa); border:2px solid #eef1ff; border-radius:8px; }
+
+/* Pricing styles (unchanged) */
+.prc-shell{ min-height:100%; background: var(--prc-bg); padding: 28px 18px 80px; color: var(--prc-text); }
 .prc-header{ max-width: 900px; margin: 0 auto 18px; text-align:center; }
 .prc-eyebrow{ display:inline-block; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:#7c8195; background:#eef1ff; border:1px solid #e5e9ff; padding:6px 10px; border-radius:999px; }
 .prc-title{ margin:10px 0 6px; font-size: clamp(1.8rem, 2.6vw, 2.6rem); color:var(--prc-ink); }
@@ -54,118 +70,127 @@ const css = `
 @media (max-width: 720px){ .prc-card{ grid-column: 1 / -1; } }
 `;
 
-// plans and credit amounts
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
 const PLANS = [
-  {
-    key: "free",
-    name: "Free",
-    desc: "Kick the tires with core tools.",
-    price: "0",
-    per: "forever",
-    credits: 10,
-    button: "Choose Free",
-    highlight: false,
-    features: ["Basic search", "Manual exports", "Community support"]
-  },
-  {
-    key: "artist",
-    name: "Artist",
-    desc: "For artists who actively pitch & research.",
-    price: "9",
-    per: "/mo",
-    credits: 200,
-    button: "Choose Artist",
-    highlight: true,
-    features: ["Unlimited filters", "CSV & TSV export", "Priority support"]
-  }
+  { key: "free", name: "Free", desc: "Kick the tires with core tools.", priceLabel: "$0", per: "forever", credits: 10, highlight: false, features: ["Basic search", "Manual exports", "Community support"], priceId: null, mode: null },
+  { key: "artist", name: "Artist", desc: "For artists who actively pitch & research.", priceLabel: "$9", per: "/mo", credits: 200, highlight: true, features: ["Unlimited filters", "CSV & TSV export", "Priority support"], priceId: import.meta.env.VITE_STRIPE_PRICE_ARTIST_SUB, mode: "subscription" },
 ];
 
-const CREDITS_KEY = "psl_credits";
-const PLAN_KEY = "psl_plan";
-const LAST_RESET_KEY = "psl_last_reset";
-
-function setPlanAndCredits(planKey, credits) {
-  try {
-    localStorage.setItem(PLAN_KEY, planKey);
-    localStorage.setItem(CREDITS_KEY, String(credits));
-    localStorage.setItem(LAST_RESET_KEY, String(Date.now()));
-  } catch {}
-}
-
 export default function Pricing() {
-  const choose = (plan) => {
-    setPlanAndCredits(plan.key, plan.credits);
-    alert(`${plan.name} selected. ${plan.credits} credits added to your account.`);
-    // window.location.href = "/search"; // optional redirect
+  const { user } = useAuth();
+  const nav = useNavigate();
+  const loc = useLocation();
+  const [loadingKey, setLoadingKey] = useState("");
+
+  // build ?redirect back to current page
+  const back = encodeURIComponent(loc.pathname + (loc.search || ""));
+
+  const requireLogin = (target = "pricing") => {
+    if (!user) {
+      // choose where to send: login or signup
+      nav(`/login?redirect=${back}&need=${target}`);
+      return false;
+    }
+    return true;
+  };
+
+  async function startCheckout(plan) {
+    if (!plan.priceId) return;
+    if (!requireLogin("checkout")) return;
+
+    setLoadingKey(plan.key);
+    try {
+      const res = await fetch("/api/stripe/create-checkout-session", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priceId: plan.priceId, mode: plan.mode }),
+      });
+
+      // If server says "not authorized", kick to login preserving return
+      if (res.status === 401) {
+        nav(`/login?redirect=${back}&need=checkout`);
+        return;
+      }
+      if (!res.ok) {
+        const t = await res.text().catch(() => "");
+        throw new Error(`Checkout failed (${res.status}). ${t}`);
+      }
+
+      const data = await res.json();
+      if (data?.url) { window.location.href = data.url; return; }
+
+      const stripe = await stripePromise;
+      if (!stripe) throw new Error("Stripe.js failed to load");
+      await stripe.redirectToCheckout({ sessionId: data.id });
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Could not start checkout.");
+    } finally {
+      setLoadingKey("");
+    }
+  }
+
+  const chooseFree = () => {
+    // Free still requires an account (so we can attach monthly credits)
+    if (!requireLogin("free")) return;
+    // Already logged in → just take them to Search (or Profile)
+    nav("/search");
   };
 
   return (
     <>
       <style>{css}</style>
+      <div className="page-scroll">
+        <div className="prc-shell">
+          <header className="prc-header">
+            <span className="prc-eyebrow">Pricing</span>
+            <h1 className="prc-title">Two simple plans</h1>
+            <p className="prc-sub">Pick a subscription and we’ll credit your account every month.</p>
+          </header>
 
-      <div className="prc-shell">
-        <header className="prc-header">
-          <span className="prc-eyebrow">Pricing</span>
-          <h1 className="prc-title">Two simple plans</h1>
-          <p className="prc-sub">Pick a plan and we’ll credit your account immediately. You can change plans anytime.</p>
-        </header>
+          <section className="prc-grid">
+            {PLANS.map((p) => (
+              <article key={p.key} className={"prc-card" + (p.highlight ? " popular" : "")}>
+                <div className="prc-name">{p.name}</div>
+                <div className="prc-desc">{p.desc}</div>
 
-        <section className="prc-grid">
-          {PLANS.map((p) => (
-            <article key={p.key} className={"prc-card" + (p.highlight ? " popular" : "")}>
-              <div className="prc-name">{p.name}</div>
-              <div className="prc-desc">{p.desc}</div>
+                <div className="prc-price">
+                  <span className="amt">{p.priceLabel}</span>
+                  <span className="per">{p.per}</span>
+                </div>
 
-              <div className="prc-price">
-                <span className="amt">${p.price}</span>
-                <span className="per">{p.per}</span>
-              </div>
+                <span className="prc-credits">{p.credits} credits / month</span>
 
-              <span className="prc-credits">{p.credits} credits / month</span>
+                <div className="prc-cta">
+                  {p.priceId ? (
+                    <button
+                      className={"prc-btn " + (p.highlight ? "primary" : "")}
+                      onClick={() => startCheckout(p)}
+                      disabled={loadingKey === p.key}
+                    >
+                      {loadingKey === p.key ? "Starting…" : `Choose ${p.name}`}
+                    </button>
+                  ) : (
+                    <button className="prc-btn" onClick={chooseFree}>
+                      Choose Free
+                    </button>
+                  )}
+                </div>
 
-              <div className="prc-cta">
-                <button
-                  className={"prc-btn " + (p.highlight ? "primary" : "")}
-                  onClick={() => choose(p)}
-                >
-                  {p.button}
-                </button>
-              </div>
-
-              {/* FEATURES (kept) */}
-              <ul className="prc-ul">
-                {p.features.map((f, i) => (
-                  <li key={i} className="prc-li">
-                    <i aria-hidden="true"></i>
-                    <span>{f}</span>
-                  </li>
-                ))}
-              </ul>
-            </article>
-          ))}
-        </section>
-
-        {/* FAQ (kept) */}
-        <section className="prc-faq">
-          <div className="prc-qa">
-            <div className="prc-q">Can I change plans later?</div>
-            <div className="prc-a">Yes. Upgrades apply immediately; downgrades take effect at the next renewal.</div>
-          </div>
-          <div className="prc-qa">
-            <div className="prc-q">How do credits work?</div>
-            <div className="prc-a">
-              Each search/export uses 1 credit. Selecting a plan sets your monthly allowance
-              (10 on Free, 200 on Artist). Credits are stored locally and can be reset when you change plans.
-            </div>
-          </div>
-          <div className="prc-qa">
-            <div className="prc-q">Do credits reset monthly?</div>
-            <div className="prc-a">
-              You can add an automatic monthly reset using the stored <code>psl_last_reset</code> date.
-              Want me to wire that into your <code>useCredits</code> hook?
-            </div>
-          </div>
-        </section>
+                <ul className="prc-ul">
+                  {p.features.map((f, i) => (
+                    <li key={i} className="prc-li">
+                      <i aria-hidden="true"></i>
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </section>
+        </div>
       </div>
     </>
   );

@@ -1,3 +1,4 @@
+// src/components/Navbar.jsx
 import React, { useEffect, useState } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -5,47 +6,76 @@ import { useAuth } from "../context/AuthContext.jsx";
 export default function Navbar() {
   const { user, logout } = useAuth();
   const [credits, setCredits] = useState(null);
+  const [sub, setSub] = useState({ status: "free", name: "Free" });
+  const [loadingSub, setLoadingSub] = useState(true);
 
   useEffect(() => {
     let timer;
+    let alive = true;
+
     async function load() {
       try {
-        const r = await fetch("/api/credits", { credentials: "include" });
-        if (r.ok) {
-          const { credits } = await r.json();
-          setCredits(credits);
-        } else {
-          setCredits(null);
+        const r = await fetch("/api/me", { credentials: "include" });
+        if (!r.ok) {
+          if (alive) {
+            setCredits(null);
+            setSub({ status: "free", name: "Free" });
+          }
+          return;
         }
-      } catch { setCredits(null); }
+        const j = await r.json();
+        if (!alive) return;
+        setCredits(typeof j?.credits?.balance === "number" ? j.credits.balance : null);
+        setSub(j?.subscription || { status: "free", name: "Free" });
+      } catch {
+        if (alive) {
+          setCredits(null);
+          setSub({ status: "free", name: "Free" });
+        }
+      } finally {
+        if (alive) setLoadingSub(false);
+      }
     }
+
     if (user) {
       load();
       timer = setInterval(load, 30000);
       const onFocus = () => load();
       window.addEventListener("focus", onFocus);
-      return () => { clearInterval(timer); window.removeEventListener("focus", onFocus); };
+      return () => {
+        alive = false;
+        clearInterval(timer);
+        window.removeEventListener("focus", onFocus);
+      };
     } else {
       setCredits(null);
+      setSub({ status: "free", name: "Free" });
+      setLoadingSub(false);
     }
   }, [user]);
+
+  const isUpgraded = !!user && (sub.status === "active" || sub.status === "trialing");
 
   return (
     <header className="navbar nav">
       <div className="nav-inner">
         <div className="nav-left">
           <Link to="/" className="nav-brand" aria-label="Playlist Supplier Home">
-            <img className="brand-icon" src="/home.png" alt="" aria-hidden />
-            <span className="brand-text">-----------</span>
+            <img
+              className="brand-icon"
+              src="https://i.imgur.com/W7aj72M.png"
+              alt=""
+              aria-hidden
+              style={{ height: "32px", width: "32px" }}
+            />
+            <span className="brand-text">Playlist Searcher</span>
           </Link>
 
           <nav className="nav-menu" aria-label="Primary">
             <NavLink
               to="/"
               end
-              className={({ isActive }) =>
-                "nav-link" + (isActive ? " is-active" : "")
-              }
+              className={({ isActive }) => "nav-link" + (isActive ? " is-active" : "")}
             >
               <img
                 src="https://cdn-icons-png.flaticon.com/512/1946/1946488.png"
@@ -55,56 +85,53 @@ export default function Navbar() {
               <span>Home</span>
             </NavLink>
 
-            <NavLink
-              to="/pricing"
-              className={({ isActive }) =>
-                "nav-link" + (isActive ? " is-active" : "")
-              }
-            >
-              <img
-                src="https://icons.iconarchive.com/icons/iconsmind/outline/512/Pricing-icon.png"
-                alt=""
-                aria-hidden
-              />
-              <span>Pricing</span>
-            </NavLink>
+            {!isUpgraded && (
+              <NavLink
+                to="/pricing"
+                className={({ isActive }) => "nav-link" + (isActive ? " is-active" : "")}
+              >
+                <img
+                  src="https://icons.iconarchive.com/icons/iconsmind/outline/512/Pricing-icon.png"
+                  alt=""
+                  aria-hidden
+                />
+                <span>Pricing</span>
+              </NavLink>
+            )}
 
-            <NavLink
-              to="/search"
-              className={({ isActive }) =>
-                "nav-link" + (isActive ? " is-active" : "")
-              }
-            >
-              <img
-                src="https://cdn-icons-png.flaticon.com/512/54/54481.png"
-                alt=""
-                aria-hidden
-              />
-              <span>Search</span>
-            </NavLink>
+            {user && (
+              <NavLink
+                to="/search"
+                className={({ isActive }) => "nav-link" + (isActive ? " is-active" : "")}
+              >
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/54/54481.png"
+                  alt=""
+                  aria-hidden
+                />
+                <span>Search</span>
+              </NavLink>
+            )}
           </nav>
         </div>
 
         <div className="nav-right">
-          {typeof credits === "number" && (
+          {user && (
             <span
+              className={
+                "nav-credits " +
+                (credits === 0 ? "zero" : "") +
+                (credits === null ? "loading" : "")
+              }
               title="Credits"
-              style={{
-                fontSize: 13,
-                padding: "6px 10px",
-                border: "1px solid var(--psl-border,#e7eaf0)",
-                borderRadius: 12,
-                marginRight: 8,
-                background: "#fff"
-              }}
             >
-              ⚡ {credits}
+              {credits === null ? "…" : credits}
             </span>
           )}
 
           {user ? (
             <>
-              <Link to="/profile" className="icon-btn" title="Profil" aria-label="Profil">
+              <Link to="/profile" className="icon-btn" title="Profile" aria-label="Profile">
                 <img src="https://cdn-icons-png.flaticon.com/512/1077/1077063.png" alt="" aria-hidden />
               </Link>
               <button className="icon-btn" onClick={logout} aria-label="Log out" title="Log out">

@@ -1,20 +1,14 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
   server: {
+    port: 5173,
     proxy: {
-      // your existing login backend
-      '/api': {
-        target: 'http://localhost:4000',
-        changeOrigin: true
-      },
-      // FastAPI backend
-      '/spotify': {
-        target: 'http://127.0.0.1:8000',
-        changeOrigin: true
-      }
-    }
-  }
-})
+      "/api":      { target: "http://localhost:4000", changeOrigin: true, secure: false },
+      "/spotify":  { target: "http://localhost:8000", changeOrigin: true, secure: false },
+      "/database": { target: "http://localhost:8000", changeOrigin: true, secure: false },
+    },
+  },
+});

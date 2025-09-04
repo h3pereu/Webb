@@ -1,0 +1,25 @@
+.profile-wrap{ display:grid; place-items:start center; padding:24px; background:var(--page-bg, #f7f9fc); }
+.profile-card{
+  width:100%; max-width:900px; background:#fff; border:1px solid var(--psl-border, #e7eaf0);
+  border-radius:18px; padding:22px; box-shadow:0 18px 50px rgba(16,24,40,.08);
+}
+.profile-card h1{ margin:0 0 10px 0; font-size:28px }
+.profile-form{ display:grid; gap:12px }
+.profile-form label{ font-weight:700; font-size:13px; color:#374151 }
+.profile-form input, .profile-form textarea{
+  width:100%; padding:12px; border:1px solid var(--psl-border, #e7eaf0); border-radius:12px; background:#fff; font-size:15px;
+}
+.profile-form input:focus, .profile-form textarea:focus{
+  outline:none; box-shadow:0 0 0 6px rgba(110,91,255,.2); border-color:#cfd7ff;
+}
+.row{ display:grid; grid-template-columns: 1fr 1fr; gap:12px }
+.col{ display:grid; gap:6px }
+.alert{ border-radius:12px; padding:10px 12px; font-weight:600 }
+.alert.error{ background:#fff3f3; border:1px solid #ffd2d2; color:#7a0c0c }
+.alert.ok{ background:#f0fff6; border:1px solid #c3f0d0; color:#155e34 }
+.save{
+  width:max-content; padding:12px 16px; border-radius:12px; border:1px solid var(--psl-border,#e7eaf0);
+  background:linear-gradient(90deg, var(--nav-accent,#6E5BFF), var(--nav-accent-2,#A78BFA)); color:#fff; font-weight:900; letter-spacing:.2px;
+  box-shadow:0 14px 34px rgba(110,91,255,.22); cursor:pointer;
+}
+@media (max-width: 780px){ .row{ grid-template-columns: 1fr } }
